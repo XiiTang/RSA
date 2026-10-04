@@ -375,6 +375,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_encrypt_decrypt_oaep() {
         let priv_key = get_private_key();
         do_test_encrypt_decrypt_oaep::<Sha1>(&priv_key);
@@ -519,6 +520,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_encrypt_decrypt_oaep_traits() {
         let priv_key = get_private_key();
         do_test_encrypt_decrypt_oaep_traits::<Sha1>(&priv_key);

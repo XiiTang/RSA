@@ -1,6 +1,7 @@
 // simple but prevent regression - see https://github.com/RustCrypto/RSA/issues/329
 #[cfg(feature = "encoding")]
 #[test]
+#[ignore = "this fork refuses private-key operations"]
 fn signature_stringify() {
     use pkcs8::DecodePrivateKey;
     use signature::Signer;
@@ -24,6 +25,7 @@ fn signature_stringify() {
 
 #[cfg(feature = "encoding")]
 #[test]
+#[ignore = "this fork refuses private-key operations"]
 fn signing_key_new_same_as_from() {
     use pkcs1::DecodeRsaPrivateKey;
     use rsa::RsaPrivateKey;

@@ -22,7 +22,7 @@
 //!
 //! Note: requires `sha2` feature of `rsa` crate is enabled.
 //!
-#![cfg_attr(feature = "sha2", doc = "```")]
+#![cfg_attr(feature = "sha2", doc = "```no_run")]
 #![cfg_attr(not(feature = "sha2"), doc = "```ignore")]
 //! use rsa::{RsaPrivateKey, RsaPublicKey, Oaep, sha2::Sha256};
 //!
@@ -51,7 +51,7 @@
 //! See security notes in the <code><a href="./pkcs1v15/index.html">pkcs1v15</a></code> module.
 //! </div>
 //!
-//! ```
+//! ```no_run
 //! use rsa::{RsaPrivateKey, RsaPublicKey, Pkcs1v15Encrypt};
 //!
 //! let mut rng = rand::rng();
@@ -79,7 +79,7 @@
 //!
 //! Note: requires `sha2` feature of `rsa` crate is enabled.
 //!
-#![cfg_attr(feature = "sha2", doc = "```")]
+#![cfg_attr(feature = "sha2", doc = "```no_run")]
 #![cfg_attr(not(feature = "sha2"), doc = "```ignore")]
 //! use rsa::RsaPrivateKey;
 //! use rsa::pkcs1v15::{SigningKey, VerifyingKey};
@@ -106,7 +106,7 @@
 //!
 //! Note: requires `sha2` feature of `rsa` crate is enabled.
 //!
-#![cfg_attr(feature = "sha2", doc = "```")]
+#![cfg_attr(feature = "sha2", doc = "```no_run")]
 #![cfg_attr(not(feature = "sha2"), doc = "```ignore")]
 //! use rsa::RsaPrivateKey;
 //! use rsa::pss::{BlindedSigningKey, VerifyingKey};

@@ -439,6 +439,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_roundtrip(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -457,6 +458,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_blinded_and_verify_roundtrip(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -475,6 +477,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_roundtrip_signer(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -490,6 +493,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_roundtrip_blinded_signer(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -505,6 +509,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_roundtrip_digest_signer(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -528,6 +533,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_roundtrip_blinded_digest_signer(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -585,6 +591,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_pss_hazmat(#[case] test: &str) {
         let test = &Sha1::digest(test);
         let priv_key = get_private_key();
@@ -603,6 +610,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_pss_blinded_hazmat(#[case] test: &str) {
         let priv_key = get_private_key();
 
@@ -621,6 +629,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
 
     #[test]
     // Tests the corner case where the key is multiple of 8 + 1 bits long
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_2049bit_key() {
         let plaintext = "Hello\n";
         let mut rng = ChaCha8Rng::from_seed([42; 32]);
@@ -644,6 +653,7 @@ tAboUGBxTDq3ZroNism3DaMIbKPyYrAqhKov1h5V
     // while the verifier uses auto-detection.
     #[rstest]
     #[case("test\n")]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_and_verify_pss_differing_salt_len(#[case] test: &str) {
         let priv_key = get_private_key();
 

@@ -22,6 +22,7 @@ prop_compose! {
 
 proptest! {
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn pkcs1v15_sign_roundtrip(private_key in private_key(), msg in any::<Vec<u8>>()) {
         let signing_key = pkcs1v15::SigningKey::<Sha256>::new(private_key);
         let signature_bytes = signing_key.sign(&msg).to_bytes();

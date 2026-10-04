@@ -905,6 +905,7 @@ mod tests {
     macro_rules! key_generation {
         ($name:ident, $multi:expr, $size:expr) => {
             #[test]
+            #[ignore = "this fork refuses private-key operations"]
             fn $name() {
                 let mut rng = ChaCha8Rng::from_seed([42; 32]);
                 let exp = BoxedUint::from(RsaPrivateKey::EXP);
@@ -940,6 +941,7 @@ mod tests {
     key_generation!(key_generation_multi_16_1024, 16, 1024);
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_negative_decryption_value() {
         let bits = 128;
         let private_key = RsaPrivateKey::from_components(

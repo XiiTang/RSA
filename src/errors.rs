@@ -63,6 +63,10 @@ pub enum Error {
     /// Internal error.
     Internal,
 
+    /// A private-key operation, which this fork refuses: none is constant-time
+    /// (RUSTSEC-2023-0071).
+    PrivateKeyOperationRefused,
+
     /// Label too long.
     LabelTooLong,
 
@@ -106,6 +110,7 @@ impl core::fmt::Display for Error {
             #[cfg(feature = "encoding")]
             Error::Pkcs8(err) => write!(f, "{}", err),
             Error::Internal => write!(f, "internal error"),
+            Error::PrivateKeyOperationRefused => write!(f, "private-key operation refused"),
             Error::LabelTooLong => write!(f, "label too long"),
             Error::InvalidPadLen => write!(f, "invalid padding length"),
             Error::InvalidArguments => write!(f, "invalid arguments"),

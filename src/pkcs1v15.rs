@@ -326,6 +326,7 @@ mod tests {
         "WtaBXIoGC54+vH0NH0CHHE+dRDOsMc/6BrfFu2lEqcKL9+uDuWaf+Xj9mrbQCjjZcpQuX733zyok/jsnqe/Ftw==",
         "01234567890123456789012345678901234567890123456789012"
     )]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_decrypt_pkcs1v15(#[case] ciphertext: &str, #[case] plaintext: &str) {
         let priv_key = get_private_key();
 
@@ -336,6 +337,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_encrypt_decrypt_pkcs1v15() {
         let mut rng = ChaCha8Rng::from_seed([42; 32]);
         let priv_key = get_private_key();
@@ -376,6 +378,7 @@ mod tests {
         "WtaBXIoGC54+vH0NH0CHHE+dRDOsMc/6BrfFu2lEqcKL9+uDuWaf+Xj9mrbQCjjZcpQuX733zyok/jsnqe/Ftw==",
         "01234567890123456789012345678901234567890123456789012"
     )]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_decrypt_pkcs1v15_traits(#[case] ciphertext: &str, #[case] plaintext: &str) {
         let priv_key = get_private_key();
         let decrypting_key = DecryptingKey::new(priv_key);
@@ -387,6 +390,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_encrypt_decrypt_pkcs1v15_traits() {
         let mut rng = ChaCha8Rng::from_seed([42; 32]);
         let priv_key = get_private_key();
@@ -421,6 +425,7 @@ mod tests {
         "a4f3fa6ea93bcdd0c57be020c1193ecbfd6f200a3d95c409769b029578fa0e33"
         "6ad9a347600e40d3ae823b8c7e6bad88cc07c1d54c3a1523cbbb6d58efc362ae"))
     ]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_pkcs1v15(#[case] text: &str, #[case] expected: [u8; 64]) {
         let priv_key = get_private_key();
 
@@ -442,6 +447,7 @@ mod tests {
         "a4f3fa6ea93bcdd0c57be020c1193ecbfd6f200a3d95c409769b029578fa0e33"
         "6ad9a347600e40d3ae823b8c7e6bad88cc07c1d54c3a1523cbbb6d58efc362ae"))
     ]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_pkcs1v15_signer(#[case] text: &str, #[case] expected: [u8; 64]) {
         let priv_key = get_private_key();
 
@@ -463,6 +469,7 @@ mod tests {
         "2ffae3f3e130287b3a1dcb320e46f52e8f3f7969b646932273a7e3a6f2a182ea"
         "02d42875a7ffa4a148aa311f9e4b562e4e13a2223fb15f4e5bf5f2b206d9451b"))
     ]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_pkcs1v15_signer_sha2_256(#[case] text: &str, #[case] expected: [u8; 64]) {
         let priv_key = get_private_key();
         let signing_key = SigningKey::<Sha256>::new(priv_key);
@@ -483,6 +490,7 @@ mod tests {
         "55e9fba3354dfb51d2c8111794ea552c86afc2cab154652c03324df8c2c51ba7"
         "2ff7c14de59a6f9ba50d90c13a7537cc3011948369f1f0ec4a49d21eb7e723f9"))
     ]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_pkcs1v15_signer_sha3_256(#[case] text: &str, #[case] expected: [u8; 64]) {
         let priv_key = get_private_key();
         let signing_key = SigningKey::<Sha3_256>::new(priv_key);
@@ -506,6 +514,7 @@ mod tests {
             "6ad9a347600e40d3ae823b8c7e6bad88cc07c1d54c3a1523cbbb6d58efc362ae"
         )
     )]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_sign_pkcs1v15_digest_signer(#[case] text: &str, #[case] expected: [u8; 64]) {
         let priv_key = get_private_key();
         let signing_key = SigningKey::new(priv_key);
@@ -640,6 +649,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_unpadded_signature() {
         let msg = b"Thu Dec 19 18:06:16 EST 2013\n";
         let expected_sig = Base64::decode_vec("pX4DR8azytjdQ1rtUiC040FjkepuQut5q2ZFX1pTjBrOVKNjgsCDyiJDGZTCNoh9qpXYbhl7iEym30BWWwuiZg==").unwrap();
@@ -655,6 +665,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "this fork refuses private-key operations"]
     fn test_unpadded_signature_hazmat() {
         let msg = b"Thu Dec 19 18:06:16 EST 2013\n";
         let expected_sig = Base64::decode_vec("pX4DR8azytjdQ1rtUiC040FjkepuQut5q2ZFX1pTjBrOVKNjgsCDyiJDGZTCNoh9qpXYbhl7iEym30BWWwuiZg==").unwrap();

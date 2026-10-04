@@ -1,13 +1,10 @@
 //! Generic RSA implementation
 
-use core::cmp::Ordering;
-
 use crypto_bigint::{
     modular::{BoxedMontyForm, BoxedMontyParams},
-    BoxedUint, ConcatenatingMul, ConcatenatingSquare, Gcd, NonZero, Odd, RandomMod, Resize,
+    BoxedUint, ConcatenatingMul, ConcatenatingSquare, Gcd, NonZero, Odd, Resize,
 };
 use rand_core::TryCryptoRng;
-use zeroize::Zeroize;
 
 use crate::errors::{Error, Result};
 use crate::traits::keys::{PrivateKeyParts, PublicKeyParts};
@@ -25,120 +22,22 @@ pub fn rsa_encrypt<K: PublicKeyParts>(key: &K, m: &BoxedUint) -> Result<BoxedUin
     Ok(res)
 }
 
-/// ⚠️ Performs raw RSA decryption with no padding or error checking.
+/// ⚠️ Raw RSA decryption with the private key: refused.
 ///
-/// Returns a plaintext `BoxedUint`. Performs RSA blinding if an `Rng` is passed.
-///
-/// # ☢️️ WARNING: HAZARDOUS API ☢️
-///
-/// Use this function with great care! Raw RSA should never be used without an appropriate padding
-/// or signature scheme. See the [module-level documentation][crate::hazmat] for more information.
+/// Every private-key operation of this crate — decryption and signing alike,
+/// through [`RsaPrivateKey`][crate::RsaPrivateKey], the signing and decrypting
+/// key types or [`hazmat`][crate::hazmat] — runs through this function, and
+/// none of them is constant-time (the Marvin attack, RUSTSEC-2023-0071). This
+/// fork refuses them all with [`Error::PrivateKeyOperationRefused`]: a
+/// dependent performs its private-key operations elsewhere, and this crate
+/// only parses, encodes and validates keys and performs public-key operations.
 #[inline]
 pub fn rsa_decrypt<R: TryCryptoRng + ?Sized>(
-    rng: Option<&mut R>,
-    priv_key: &impl PrivateKeyParts,
-    c: &BoxedUint,
+    _rng: Option<&mut R>,
+    _priv_key: &impl PrivateKeyParts,
+    _c: &BoxedUint,
 ) -> Result<BoxedUint> {
-    let n = priv_key.n();
-    let d = priv_key.d();
-
-    if c.bits_precision() != n.as_ref().bits_precision() {
-        return Err(Error::Decryption);
-    }
-
-    if c >= n.as_ref() {
-        return Err(Error::Decryption);
-    }
-
-    let mut ir = None;
-
-    let n_params = priv_key.n_params();
-    let bits = d.bits_precision();
-
-    let c = if let Some(rng) = rng {
-        let (blinded, unblinder) = blind(rng, priv_key, c, n_params)?;
-        ir = Some(unblinder);
-        blinded.try_resize(bits).ok_or(Error::Internal)?
-    } else {
-        c.try_resize(bits).ok_or(Error::Internal)?
-    };
-
-    let is_multiprime = priv_key.primes().len() > 2;
-
-    let m = match (
-        priv_key.dp(),
-        priv_key.dq(),
-        priv_key.qinv(),
-        priv_key.p_params(),
-        priv_key.q_params(),
-    ) {
-        (Some(dp), Some(dq), Some(qinv), Some(p_params), Some(q_params)) if !is_multiprime => {
-            // We have the precalculated values needed for the CRT.
-
-            let p = &priv_key.primes()[0];
-            let q = &priv_key.primes()[1];
-
-            // precomputed: dP = (1/e) mod (p-1) = d mod (p-1)
-            // precomputed: dQ = (1/e) mod (q-1) = d mod (q-1)
-
-            // TODO: it may be faster to convert to and from Montgomery with prepared parameters
-            // (modulo `p` and `q`) rather than calculating the remainder directly.
-
-            // m1 = c^dP mod p
-            let p_wide = p_params.modulus().resize_unchecked(c.bits_precision());
-            let c_mod_dp = (&c % p_wide.as_nz_ref()).resize_unchecked(dp.bits_precision());
-            let cp = BoxedMontyForm::new(c_mod_dp, p_params);
-            let mut m1 = cp.pow(dp);
-            // m2 = c^dQ mod q
-            let q_wide = q_params.modulus().resize_unchecked(c.bits_precision());
-            let c_mod_dq = (&c % q_wide.as_nz_ref()).resize_unchecked(dq.bits_precision());
-            let cq = BoxedMontyForm::new(c_mod_dq, q_params);
-            let m2 = cq.pow(dq).retrieve();
-
-            // Note that since `p` and `q` may have different `bits_precision`,
-            // it may be different for `m1` and `m2` as well.
-
-            // (m1 - m2) mod p = (m1 mod p) - (m2 mod p) mod p
-            let m2_mod_p = match p_params.bits_precision().cmp(&q_params.bits_precision()) {
-                Ordering::Less => {
-                    let p_wide = NonZero::new(p.clone())
-                        .expect("`p` is non-zero")
-                        .resize_unchecked(q_params.bits_precision());
-                    (&m2 % p_wide).resize_unchecked(p_params.bits_precision())
-                }
-                Ordering::Greater => (&m2).resize_unchecked(p_params.bits_precision()),
-                Ordering::Equal => m2.clone(),
-            };
-            let m2r = BoxedMontyForm::new(m2_mod_p, p_params);
-            m1 -= &m2r;
-
-            // precomputed: qInv = (1/q) mod p
-
-            // h = qInv.(m1 - m2) mod p
-            let h = (qinv * m1).retrieve();
-
-            // m = m2 + h.q
-            let m2 = m2.try_resize(n.bits_precision()).ok_or(Error::Internal)?;
-            let hq = h
-                .concatenating_mul(&q)
-                .try_resize(n.bits_precision())
-                .ok_or(Error::Internal)?;
-            m2.wrapping_add(&hq)
-        }
-        _ => {
-            // c^d (mod n)
-            pow_mod_params(&c, d, n_params)
-        }
-    };
-
-    match ir {
-        Some(ref ir) => {
-            // unblind
-            let res = unblind(&m, ir, n_params);
-            Ok(res)
-        }
-        None => Ok(m),
-    }
+    Err(Error::PrivateKeyOperationRefused)
 }
 
 /// ⚠️ Performs raw RSA decryption with no padding.
@@ -169,71 +68,6 @@ pub fn rsa_decrypt_and_check<R: TryCryptoRng + ?Sized>(
     }
 
     Ok(m)
-}
-
-/// Returns the blinded c, along with the unblinding factor.
-fn blind<R: TryCryptoRng + ?Sized, K: PublicKeyParts>(
-    rng: &mut R,
-    key: &K,
-    c: &BoxedUint,
-    n_params: &BoxedMontyParams,
-) -> Result<(BoxedUint, BoxedUint)> {
-    // Blinding involves multiplying c by r^e.
-    // Then the decryption operation performs (m^e * r^e)^d mod n
-    // which equals mr mod n. The factor of r can then be removed
-    // by multiplying by the multiplicative inverse of r.
-    debug_assert_eq!(&key.n().clone().get(), n_params.modulus());
-    let bits = key.n_bits_precision();
-
-    let mut r: BoxedUint = BoxedUint::zero_with_precision(bits);
-    let mut ir: Option<BoxedUint> = None;
-    while ir.is_none() {
-        r = BoxedUint::try_random_mod_vartime(rng, key.n()).map_err(|_| Error::Rng)?;
-
-        // r^-1 (mod n)
-        ir = r.invert_mod(key.n()).into();
-    }
-
-    let blinded = {
-        // r^e (mod n)
-        let e = key.e();
-        let mut rpowe = pow_mod_params_vartime_exp_bits(&r, e, e.bits(), n_params);
-        // c * r^e (mod n)
-        let c = c.mul_mod(&rpowe, n_params.modulus().as_nz_ref());
-        rpowe.zeroize();
-
-        c
-    };
-
-    let ir = ir.expect("loop exited");
-    debug_assert_eq!(blinded.bits_precision(), bits);
-    debug_assert_eq!(ir.bits_precision(), bits);
-
-    Ok((blinded, ir))
-}
-
-/// Given an m and unblinding factor, unblind the m.
-fn unblind(m: &BoxedUint, unblinder: &BoxedUint, n_params: &BoxedMontyParams) -> BoxedUint {
-    // m * r^-1 (mod n)
-    debug_assert_eq!(
-        m.bits_precision(),
-        unblinder.bits_precision(),
-        "invalid unblinder"
-    );
-
-    debug_assert_eq!(
-        m.bits_precision(),
-        n_params.bits_precision(),
-        "invalid n_params"
-    );
-
-    m.mul_mod(unblinder, n_params.modulus().as_nz_ref())
-}
-
-/// Computes `base.pow_mod(exp, n)` with precomputed `n_params`.
-fn pow_mod_params(base: &BoxedUint, exp: &BoxedUint, n_params: &BoxedMontyParams) -> BoxedUint {
-    let base = reduce_vartime(base, n_params);
-    base.pow(exp).retrieve()
 }
 
 /// Computes `base.pow_mod(exp, n)` with a bounded exponent and precomputed `n_params`.
