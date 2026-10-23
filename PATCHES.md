@@ -18,3 +18,11 @@ Boundless consumes a full commit SHA through `[patch.crates-io]`; run these and
 the Boundless SSH and RSA regressions before moving the pin. To move to a newer
 upstream release, replace `rsa_decrypt`'s body again, drop what only it used,
 and ignore the upstream tests that sign or decrypt.
+
+## Fixed constant-time utilities (#312)
+
+Update the lockfile's ctutils 0.4.2 to 0.4.4, the smallest patched release
+for RUSTSEC-2026-0385 (mask generation and u128 comparisons). The private-key
+operation refusal and public-key API are unchanged. Regression coverage:
+`cargo test --all-features --locked`, including `tests/refused.rs`, plus
+Boundless's SSH and RSA tests in its complete library suite.
